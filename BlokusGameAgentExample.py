@@ -26,8 +26,8 @@ class BlokusGameAgentExample(GameAgent):
 
     #the fixedDepth will be used as the desired search depth, when there is no time limit.
     #if you wish to use this agent in your experiments, you can inherit from this class and set the fixedDepth with a parameter given to the constructor
-    def __init__(self):
-        self.fixedDepth = 2
+    def __init__(self, depth):
+        self.fixedDepth = depth
     
     #if you want to know in which mode you are you can find it in state.orderedShapesMode
     def setup(self, player, state, timeLimit):
@@ -84,7 +84,7 @@ class BlokusGameAgentExample(GameAgent):
         winner = state.getWinner()
 
         if winner is None:
-            retval =  (state.currentPlayer.getScore() - state.opponentPlayer.getScore()) if (self.player == state.getCurrentPlayer()) else (state.opponentPlayer.getScore() - state.currentPlayer.getScore())
+            retval = self.heuristic(state)
         elif winner == self.player:
             retval = WIN_VALUE
         elif winner == TIE:
@@ -93,6 +93,9 @@ class BlokusGameAgentExample(GameAgent):
             retval = LOSE_VALUE            
         
         return retval
+
+    def heuristic(self, state):
+        return (state.currentPlayer.getScore() - state.opponentPlayer.getScore()) if (self.player == state.getCurrentPlayer()) else (state.opponentPlayer.getScore() - state.currentPlayer.getScore())
         
     def noMoreTime(self):
         return True if (CHECK_TIME and (self.timeLimit != NO_LIMIT) and (clock() - self.startTime > self.turnTimeLimit)) else False

@@ -6,6 +6,8 @@ from BlokusGameConstants import Players, GameOption
 from BlokusGameInput import IllegalShapeFileFormatException
 from BlokusGameState import BlokusGameState
 from BlokusGameAgentExample import BlokusGameAgentExample
+from BlokusAgentSimple import BlokusAgentSimple
+from BlokusAgentMcBoogerballs import BlokusAgentMcBoogerballs
 #from BlokusGameAgentInteractive import BlokusGameAgentInteractive
 
 def go():
@@ -14,8 +16,8 @@ def go():
     
     agents = {}
 
-    agents[Players.FIRST] = BlokusGameAgentExample()
-    agents[Players.SECOND] = BlokusGameAgentExample()
+    agents[Players.FIRST] = BlokusAgentSimple(1)
+    agents[Players.SECOND] = BlokusAgentMcBoogerballs(4)
 #    agents[Players.FIRST] = BlokusGameAgentInteractive()
 #    agents[Players.SECOND] = BlokusGameAgentInteractive()
     

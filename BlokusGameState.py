@@ -166,11 +166,11 @@ class BlokusGameState(GameState):
                 
                 for color in self.currentPlayer.colors:
                     if mask & color.boardBinary:
-                        currPlayer = "  " + color.color + "  "
+                        currPlayer = "  " + color.__str__() + "  "
                    
                 for color in self.opponentPlayer.colors:
                     if mask & color.boardBinary:
-                        currPlayer = "  " + color.color + "  "
+                        currPlayer = "  " + color.__str__() + "  "
                                    
                 result += currPlayer
 

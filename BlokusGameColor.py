@@ -1,4 +1,10 @@
 class BlokusGameColor():
+    COLORS = {
+            'R': '\x1b[38;5;1mR\x1b[0m',
+            'B': '\x1b[38;5;4mB\x1b[0m',
+            'G': '\x1b[38;5;2mG\x1b[0m',
+            'Y': '\x1b[38;5;3mY\x1b[0m',
+            }
 
     def setup(self, color, shapes):
         self.color = color
@@ -28,7 +34,7 @@ class BlokusGameColor():
         return hash((self.color, self.boardBinary))
 
     def __str__(self):
-        return self.color
+        return BlokusGameColor.COLORS[self.color]
     
     def __repr__(self):
         return self.__str__()

@@ -81,5 +81,6 @@ class GameRunner():
             
             if state.getWinner() is None:
                 print state
+                pass
         
         return state

@@ -13,10 +13,12 @@ from BlokusAgentMcBoogerballs import BlokusAgentMcBoogerballs
 def go():
     
     (boardSize, orderedShapesMode, timeLimit) = GameOption[2]
+
+    timeLimit = NO_LIMIT
     
     agents = {}
 
-    agents[Players.FIRST] = BlokusAgentSimple(1)
+    agents[Players.FIRST] = BlokusAgentSimple(6)
     agents[Players.SECOND] = BlokusAgentMcBoogerballs(4)
 #    agents[Players.FIRST] = BlokusGameAgentInteractive()
 #    agents[Players.SECOND] = BlokusGameAgentInteractive()

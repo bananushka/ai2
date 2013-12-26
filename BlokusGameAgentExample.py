@@ -32,19 +32,26 @@ class BlokusGameAgentExample(GameAgent):
     #if you want to know in which mode you are you can find it in state.orderedShapesMode
     def setup(self, player, state, timeLimit):
         start = clock()
+        self.turnNumber = 0
         self.player = player
         self.alphaBeta = AlphaBetaSearch(self.player, \
                                          lambda state: self.utility(state), \
                                          lambda : self.noMoreTime())
         self.timeLimit = timeLimit            
         if (timeLimit != NO_LIMIT):
-            self.turnTimeLimit = (timeLimit - 5) / state.numOfShapes
+            self._turnTimeLimit = (timeLimit - 5) / state.numOfShapes
             self.timeLimit -= 1
         
         self.timePlayed = clock() - start
+
+    @property
+    def turnTimeLimit(self):
+        return self._turnTimeLimit
     
     def move(self, state):
         self.startTime = clock()
+        self.currentState = state
+        self.turnNumber += 1
         
         #if there is no time limit - its a fixed depth search
         if (self.timeLimit == NO_LIMIT): 

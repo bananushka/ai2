@@ -5,9 +5,17 @@ from BlokusGameUtils import getIndexesOfTurnedOnBits, getBinaryShapeCorners
 class BlokusAgentMcBoogerballs(BlokusAgentSimple):
     def heuristic(self, state):
         parentHeuristic = BlokusGameAgentExample.heuristic(self, state)
+        return availableCorners(state)
         return parentHeuristic + \
                 availableCorners(state) * \
                 averageSquaresInHand(state.currentPlayer.getCurrentColor())
+
+    @property
+    def turnTimeLimit(self):
+        if self.turnNumber <= 12:
+            return self._turnTimeLimit / 3
+        else:
+            return self._turnTimeLimit * 2
 
 def availableCorners(state):
     currentColor = state.currentPlayer.getCurrentColor()

@@ -2,20 +2,63 @@ from BlokusGameAgentExample import BlokusGameAgentExample
 from BlokusAgentSimple import BlokusAgentSimple
 from BlokusGameUtils import getIndexesOfTurnedOnBits, getBinaryShapeCorners
 
+class TimeManagement:
+    MORE_TIME_AT_THE_END = 1
+    ACCORDING_TO_OPEN_CORNERS = 2
+    MORE_TIME_AT_THE_BEGINNING = 4
+
+class SelectiveDeepening:
+    OPPONENT_PASSED = 1
+    HIGH_HEURISTICS = 2
+    SKIP_FIRST = 4
+    PROXIMITY_TO_OPPONENT = 8
+
+class ChildrenOrdering:
+    MOST_CORNERS = 1
+
+class Heuristics:
+    PARENT = 1
+    CORNERS = 2
+    CORNERS_TIMES_SQUARES = 4
+
+
 class BlokusAgentMcBoogerballs(BlokusAgentSimple):
+    def __init__(self, depth=2, heuristicType=0, timeManagement=0, \
+            selectiveDeepening=0,\
+            childrenOrdering=0):
+        self.fixedDepth = depth
+        self.heuristicType = heuristicType
+        self.timeManagement = timeManagement
+        self.selectiveDeepening = selectiveDeepening
+        self.childrenOrdering = childrenOrdering
+
     def heuristic(self, state):
-        parentHeuristic = BlokusGameAgentExample.heuristic(self, state)
-        return availableCorners(state)
-        return parentHeuristic + \
-                availableCorners(state) * \
-                averageSquaresInHand(state.currentPlayer.getCurrentColor())
+        score = 0
+        if self.heuristicType & Heuristics.PARENT:
+            score += BlokusGameAgentExample.heuristic(self, state)
+        if self.heuristicType & Heuristics.CORNERS:
+            score += availableCorners(state)
+        if self.heuristicType & Heuristics.CORNERS_TIMES_SQUARES:
+            score += availableCorners(state) * \
+                    averageSquaresInHand(state.currentPlayer.getCurrentColor())
+
+        return score
 
     @property
     def turnTimeLimit(self):
-        if self.turnNumber <= 12:
-            return self._turnTimeLimit / 3
-        else:
-            return self._turnTimeLimit * 2
+        if self.timeManagement & TimeManagement.MORE_TIME_AT_THE_END:
+            if self.turnNumber <= 6:
+                return self._turnTimeLimit / 1.5
+            else:
+                return self._turnTimeLimit * 1.5
+
+        if self.timeManagement & TimeManagement.MORE_TIME_AT_THE_BEGINNING:
+            if self.turnNumber <= 8:
+                return self._turnTimeLimit * 2
+            else:
+                return self._turnTimeLimit
+
+        return self._turnTimeLimit
 
 def availableCorners(state):
     currentColor = state.currentPlayer.getCurrentColor()

@@ -17,7 +17,7 @@ class ChildrenOrdering:
     MOST_CORNERS = 1
 
 class Heuristics:
-    PARENT = 1
+    SCORE = 1
     CORNERS = 2
     CORNERS_TIMES_SQUARES = 4
 
@@ -34,7 +34,7 @@ class BlokusAgentMcBoogerballs(BlokusAgentSimple):
 
     def heuristic(self, state):
         score = 0
-        if self.heuristicType & Heuristics.PARENT:
+        if self.heuristicType & Heuristics.SCORE:
             score += BlokusGameAgentExample.heuristic(self, state)
         if self.heuristicType & Heuristics.CORNERS:
             score += availableCorners(state)

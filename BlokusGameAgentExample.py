@@ -39,7 +39,7 @@ class BlokusGameAgentExample(GameAgent):
                                          lambda : self.noMoreTime())
         self.timeLimit = timeLimit            
         if (timeLimit != NO_LIMIT):
-            self._turnTimeLimit = (timeLimit - 5) / state.numOfShapes
+            self._turnTimeLimit = (timeLimit - 5.0) / (state.numOfShapes * len(state.currentPlayer.colors))
             self.timeLimit -= 1
         
         self.timePlayed = clock() - start

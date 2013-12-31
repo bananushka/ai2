@@ -4,7 +4,7 @@ from BlokusGameInput import IllegalShapeFileFormatException
 from BlokusGameState import BlokusGameState
 from BlokusAgentSimple import BlokusAgentSimple
 from BlokusAgentMcBoogerballs import BlokusAgentMcBoogerballs, TimeManagement, Heuristics
-from RunExpriment2 import game
+from Runner import *
 '''
 	Runing this script should output all of the raw information for experiment 1 as defined
 	in the assignment specification doc.
@@ -18,43 +18,18 @@ out = 'output1.txt' # (or csv)
 #out_<...> = 'output1_<a relevant name>.txt' (or csv)
 
 
-depths = [2]
-RUNS = 3
-TIME = 60
 table = {}
 if __name__ == '__main__':
-    for i in depths:
-        for j in depths:
-            table[('YC', i, 'S', j)] = { -1: 0, 0: 0, 1: 0 }
-            table[('YP', i, 'S', j)] = { -1: 0, 0: 0, 1: 0 }
-            table[('YC+P', i, 'S', j)] = { -1: 0, 0: 0, 1: 0 }
-            table[('YCS+P', i, 'S', j)] = { -1: 0, 0: 0, 1: 0 }
-            if i != j:
-                table[('S', i, 'S', j)] = { -1: 0, 0: 0, 1: 0 }
-                table[('Y', i, 'Y', j)] = { -1: 0, 0: 0, 1: 0 }
-            for run in range(RUNS):
-                result = game(TIME, BlokusAgentMcBoogerballs, i, BlokusAgentSimple, j, \
-                        { 'heuristicType': Heuristics.CORNERS })
-                table[('YC', i, 'S', j)][result] += 1
-                result = game(TIME, BlokusAgentMcBoogerballs, i, BlokusAgentSimple, j, \
-                        { 'heuristicType': Heuristics.PARENT })
-                table[('YP', i, 'S', j)][result] += 1
-                #result = game(TIME, BlokusAgentSimple, i, BlokusAgentMcBoogerballs, j)
-                result = game(TIME, BlokusAgentMcBoogerballs, i, BlokusAgentSimple, j, \
-                        {'heuristicType': Heuristics.CORNERS | Heuristics.PARENT})
-                table[('YC+P', i, 'S', j)][result] += 1
-                result = game(TIME, BlokusAgentMcBoogerballs, i, BlokusAgentSimple, j, \
-                        {'heuristicType': Heuristics.CORNERS_TIMES_SQUARES | Heuristics.PARENT })
-                table[('YCS+P', i, 'S', j)][result] += 1
-                if i != j:
-                    result = game(BlokusAgentSimple, i, BlokusAgentSimple, j)
-                    table[('S', i, 'S', j)][result] += 1
-                    result = game(BlokusAgentMcBoogerballs, i, BlokusAgentMcBoogerballs, j)
-                    table[('Y', i, 'Y', j)][result] += 1
+    player1Args, player2Args = addDepth(depths=[2], \
+            player1Args=[Args.SIMPLE], \
+            player2Args=[ { 'heuristicType': Heuristics.SCORE | Heuristics.CORNERS } ])
+    options = [ { 'timeLimit': NO_LIMIT } ]
+    results1 = experiment(options, player1Args, player2Args)
+    results2 = experiment(options, player2Args, player1Args)
+    #showResults(results1, options, player1Args, player2Args)
+    csvResults(results1, 'S', player1Args, 'Y', player2Args)
+    #showResults(results2, options, player2Args, player1Args)
 
-    print table
-	# run experiment 1
-	# output raw data to out file(s)
 	
 	# after runing, manually rename the output file(s) by adding '_results' before the file extension.
 	# for example: output1_results.txt

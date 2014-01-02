@@ -8,7 +8,8 @@ class AlphaBetaSearch:
     search by depth alone and uses an evaluation function (utility).
     '''
     
-    def __init__(self, player, utility, noMoreTime):
+    def __init__(self, player, utility, noMoreTime, ordering=lambda s, x: x, \
+            deepening=lambda s, d, o: None):
         '''
         Constructor.
         
@@ -20,6 +21,8 @@ class AlphaBetaSearch:
         self.player = player
         self.utility = utility
         self.noMoreTime = noMoreTime
+        self.ordering = ordering
+        self.deepening = deepening
     
     def search(self, maxDepth, currentState):
         '''
@@ -33,7 +36,9 @@ class AlphaBetaSearch:
         bestValue = -INFINITY
         bestAction = None
         
-        for action, state in currentState.getSuccessors().iteritems():
+        successors = currentState.getSuccessors().iteritems()
+        successors = self.ordering(currentState, successors)
+        for action, state in successors:
         
             valueFunction = self.__getValueFunction(state)
             value = valueFunction(state, bestValue, INFINITY, 1)
@@ -51,7 +56,17 @@ class AlphaBetaSearch:
             return self.__minValue
     
     def __cutoffTest(self, state, depth):
-        return depth >= self.maxDepth or (state.getWinner() is not None)
+        overdepth = self.maxDepth - depth
+        winner = state.getWinner()
+        if winner is not None:
+            return True
+        
+        selective = self.deepening(state, depth, overdepth)
+        
+        if selective is None:
+            return depth >= self.maxDepth or (state.getWinner() is not None)
+
+        return selective
     
     def __maxValue(self, state, alpha, beta, depth):
         
@@ -62,7 +77,9 @@ class AlphaBetaSearch:
             return self.utility(state)
         
         value = -INFINITY        
-        for _ , successor in state.getSuccessors().iteritems():
+        successors = state.getSuccessors().iteritems()
+        successors = self.ordering(state, successors)
+        for _ , successor in successors:
             valueFunction = self.__getValueFunction(successor)
             tempVal = valueFunction(successor, alpha, beta, depth + 1)
             if tempVal is None: return None
@@ -82,7 +99,10 @@ class AlphaBetaSearch:
             return self.utility(state)
         
         value = INFINITY
-        for _ , successor in state.getSuccessors().iteritems():
+
+        successors = state.getSuccessors().iteritems()
+        successors = self.ordering(state, successors)
+        for _ , successor in successors:
             valueFunction = self.__getValueFunction(successor)
             tempVal = valueFunction(successor, alpha, beta, depth + 1)
             if tempVal is None: return None

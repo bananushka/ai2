@@ -1,6 +1,7 @@
 from BlokusGameAgentExample import BlokusGameAgentExample
 from BlokusAgentSimple import BlokusAgentSimple
 from BlokusGameUtils import getIndexesOfTurnedOnBits, getBinaryShapeCorners
+from AlphaBeta import AlphaBetaSearch
 
 class TimeManagement:
     MORE_TIME_AT_THE_END = 1
@@ -14,12 +15,14 @@ class SelectiveDeepening:
     PROXIMITY_TO_OPPONENT = 8
 
 class ChildrenOrdering:
-    MOST_CORNERS = 1
+    HEURISTIC = 1
+    MOST_CORNERS = 2
 
 class Heuristics:
     SCORE = 1
     CORNERS = 2
     CORNERS_TIMES_SQUARES = 4
+    ALL_CORNERS = 8
 
 
 class BlokusAgentMcBoogerballs(BlokusAgentSimple):
@@ -32,16 +35,52 @@ class BlokusAgentMcBoogerballs(BlokusAgentSimple):
         self.selectiveDeepening = selectiveDeepening
         self.childrenOrdering = childrenOrdering
 
+    def setup(self, player, state, timeLimit):
+        BlokusGameAgentExample.setup(self, player, state, timeLimit)
+
+        self.alphaBeta = AlphaBetaSearch(self.player, \
+                                         lambda state: self.utility(state), \
+                                         lambda : self.noMoreTime(), \
+                                         lambda state, x: self.order(state, x), \
+                                         lambda state, d, o: self.select(state, d, o))
+
+    def select(self, state, depth, overdepth):
+        if depth < 5:
+            return None
+
+        if overdepth > 4:
+            return False
+
+        if self.selectiveDeepening & SelectiveDeepening.HIGH_HEURISTICS:
+            if corners(self.player, state) > 5:
+                return True
+            if corners(self.player, state) < 3:
+                return False
+
+        return None
+
+    def order(self, state, successors):
+        if self.childrenOrdering & ChildrenOrdering.HEURISTIC:
+            return sorted(successors, \
+                    lambda pair2, pair1: \
+                        availableCorners(pair1[1], pair1[1].currentPlayer.getCurrentColor()) - \
+                            availableCorners(pair2[1], pair2[1].currentPlayer.getCurrentColor()), \
+                    reverse=self.player == state.getCurrentPlayer())
+        return successors
+
     def heuristic(self, state):
         score = 0
         if self.heuristicType & Heuristics.SCORE:
-            score += BlokusGameAgentExample.heuristic(self, state)
-        if self.heuristicType & Heuristics.CORNERS:
-            score += availableCorners(state)
-        if self.heuristicType & Heuristics.CORNERS_TIMES_SQUARES:
-            score += availableCorners(state) * \
-                    averageSquaresInHand(state.currentPlayer.getCurrentColor())
+            score += 1 * BlokusGameAgentExample.heuristic(self, state)
+        if self.heuristicType & Heuristics.ALL_CORNERS:
+            score += 1 * corners(self.player, state)
 
+        if False:
+            print '===Heuristics==='
+            print BlokusGameAgentExample.heuristic(self, state)
+            print availableCorners(state, state.currentPlayer.getCurrentColor())
+            print corners(self.player, state)
+            print '===End Heuristics==='
         return score
 
     @property
@@ -60,9 +99,26 @@ class BlokusAgentMcBoogerballs(BlokusAgentSimple):
 
         return self._turnTimeLimit
 
-def availableCorners(state):
-    currentColor = state.currentPlayer.getCurrentColor()
+def corners(player, state):
+    corners = 0
+    for color in state.currentPlayer.colors:
+        available = availableCorners(state, color)
+        if player == state.getCurrentPlayer():
+            corners += available
+        else:
+            corners -= available
 
+    for color in state.opponentPlayer.colors:
+        available = availableCorners(state, color)
+        if player == state.getCurrentPlayer():
+            corners -= available
+        else:
+            corners += available
+
+    return corners
+
+
+def availableCorners(state, currentColor):
     currentBoard = currentColor.boardBinary
     currentBoardNeighbours = (currentBoard >> 1) | (currentBoard << 1) \
             | (currentBoard >> state.boardSizeWithBorder) \
@@ -72,7 +128,8 @@ def availableCorners(state):
         if not (color == currentColor):
             opponentBoards |= color.boardBinary
     for color in state.opponentPlayer.colors:
-        opponentBoards |= color.boardBinary
+        if not (color == currentColor):
+            opponentBoards |= color.boardBinary
     freeSquares = ~(currentBoard | currentBoardNeighbours | \
             opponentBoards | state.border)
 

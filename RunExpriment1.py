@@ -20,15 +20,15 @@ out = 'output1.txt' # (or csv)
 
 table = {}
 if __name__ == '__main__':
-    player1Args, player2Args = addDepth(depths=[2], \
-            player1Args=[Args.SIMPLE], \
-            player2Args=[ { 'heuristicType': Heuristics.SCORE | Heuristics.CORNERS } ])
+    depths = [2, 4]
+    names = [ 'S', 'Y' ]
+    args = [Args.SIMPLE, {
+                    'heuristicType': Heuristics.SCORE | Heuristics.ALL_CORNERS
+                }]
+    playerArgs = addDepth(depths=depths, player1Args=args)
     options = [ { 'timeLimit': NO_LIMIT } ]
-    results1 = experiment(options, player1Args, player2Args)
-    results2 = experiment(options, player2Args, player1Args)
-    #showResults(results1, options, player1Args, player2Args)
-    csvResults(results1, 'S', player1Args, 'Y', player2Args)
-    #showResults(results2, options, player2Args, player1Args)
+    results = experiment(options, depths, playerArgs)
+    print csvResults(out, results, names, depths, playerArgs)
 
 	
 	# after runing, manually rename the output file(s) by adding '_results' before the file extension.

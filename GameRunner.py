@@ -75,12 +75,16 @@ class GameRunner():
             if action not in successors.keys():
                 raise IllegalMoveException(state.getCurrentPlayer(), action)
 
-            print str(state.currentPlayer) + " player\'s move: " + str(action)
+            #print str(state.currentPlayer) + " player\'s move: " + str(action)
 
             state = successors[action]
             
             if state.getWinner() is None:
-                print state
+                #print state
                 pass
         
+
+        for player, agent in self.agents.items():
+            print agent.turnNumber
+
         return state

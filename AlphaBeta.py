@@ -39,7 +39,6 @@ class AlphaBetaSearch:
         successors = currentState.getSuccessors().iteritems()
         successors = self.ordering(currentState, successors)
         for action, state in successors:
-        
             valueFunction = self.__getValueFunction(state)
             value = valueFunction(state, bestValue, INFINITY, 1)
             if value is None: return None

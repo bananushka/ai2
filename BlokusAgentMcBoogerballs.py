@@ -50,11 +50,11 @@ class BlokusAgentMcBoogerballs(BlokusAgentSimple):
                                          lambda state, d, o: self.select(state, d, o))
 
     def select(self, state, depth, overdepth):
-        if overdepth > 4:
+        if overdepth > 2:
             return False
 
         if self.selectiveDeepening & SelectiveDeepening.HIGH_HEURISTICS:
-            if corners(self.player, state) > 5:
+            if corners(self.player, state) < 10:
                 return True
 
         return None
@@ -66,6 +66,7 @@ class BlokusAgentMcBoogerballs(BlokusAgentSimple):
                         availableCorners(pair1[1], pair1[1].currentPlayer.getCurrentColor()) - \
                             availableCorners(pair2[1], pair2[1].currentPlayer.getCurrentColor()), \
                     reverse=self.player == state.getCurrentPlayer())
+
         return successors
 
     def heuristic(self, state):
@@ -74,51 +75,76 @@ class BlokusAgentMcBoogerballs(BlokusAgentSimple):
             score += 1 * BlokusGameAgentExample.heuristic(self, state)
         if self.heuristicType & Heuristics.ALL_CORNERS:
             score += 1 * corners(self.player, state)
-        if self.heuristicType & Heuristics.OPPOSING_CORNERS:
-            score += 1 * opposingCorners(self.player, state)
 
         return score
 
     @property
     def turnTimeLimit(self):
         if self.timeManagement & TimeManagement.MORE_TIME_AT_THE_END:
-            if self.turnNumber <= 6:
+            if self.turnNumber <= 8:
                 return self._turnTimeLimit / 1.5
             else:
                 return self._turnTimeLimit * 1.5
 
         if self.timeManagement & TimeManagement.MORE_TIME_AT_THE_BEGINNING:
-            if self.turnNumber <= 8:
+            if self.turnNumber <= 20:
                 return self._turnTimeLimit * 2
             else:
                 return self._turnTimeLimit
 
+        if self.timeManagement & TimeManagement.ACCORDING_TO_OPEN_CORNERS:
+            openCorners = availableCorners(self.currentState, \
+                    self.currentState.currentPlayer.getCurrentColor())
+            openCorners = corners(self.player, self.currentState)
+            return self._turnTimeLimit * openCorners / 10
+
+
         return self._turnTimeLimit
 
-def opposingCorners(player, state):
+def opposingCorners(state):
     slimSize = state.boardSize
     size = state.boardSizeWithBorder
     boardCorners = getBoardCorners(size)
     color1 = state.currentPlayer.colors[0].boardBinary
     color2 = state.currentPlayer.colors[1].boardBinary
 
-    
-    print binaryBoardToArray(boardCorners, slimSize, size)
-    print binaryBoardToArray(color1, slimSize, size)
-    print binaryBoardToArray(color2, slimSize, size)
-
     corner1 = color1 & boardCorners
     corner2 = color2 & boardCorners
 
-    corner1, corner2 = min(corner1, corner2), max(corner1, corner2)
+    color1 = binaryBoardToArray(color1, slimSize, size)
+    color2 = binaryBoardToArray(color2, slimSize, size)
 
     retval = 0
+
+    if color1[0][0] == 1 and color2[slimSize - 1][slimSize - 1] == 1:
+        retval = 1000
+
+    if color2[0][0] == 1 and color1[slimSize - 1][slimSize - 1] == 1:
+        retval = 1000
+
+    if color1[0][slimSize - 1] == 1 and color2[slimSize - 1][0] == 1:
+        retval = 1000
+
+    if color2[0][slimSize - 1] == 1 and color1[slimSize - 1][0] == 1:
+        retval = 1000
+
+    return retval == 1000
+
+    return retval if player == state.getCurrentPlayer() else -1 * retval
+
+    corner1, corner2 = min(corner1, corner2), max(corner1, corner2)
+
     if corner1 & topLeftCorner(size) and corner2 & bottomRightCorner(size) \
             or \
         corner1 & topRightCorner(size) and corner2 & bottomLeftCorner(size):
         retval = 1000
 
-    return retval if player == state.getCurrentPlayer() else -1 * retval
+    boardCorners = binaryBoardToArray(boardCorners, slimSize, size)
+    color1 = binaryBoardToArray(color1, slimSize, size)
+    print 'TL: %s, TR: %s, BL: %s, BR: %s' % (color1[0][0], color1[0][slimSize - 1], \
+                                            color1[slimSize - 1][0], color1[slimSize - 1][slimSize -1])
+
+
 
 def topLeftCorner(boardSizeWithBorder):
     return 2**(boardSizeWithBorder + 1) 

@@ -13,12 +13,12 @@ from cStringIO import StringIO
 
 
 GAME_DEFAULTS = GameOption[2]
-DEFAULT_RUNS = 1
+DEFAULT_RUNS = 20
 DEFAULT_DEPTH = 2
 
 class Args:
     SIMPLE = { 'heuristicType': Heuristics.SCORE }
-    BASIC = { 'heuristicType': Heuristics.SCORE | Heuristics.ALL_CORNERS | Heuristics.OPPOSING_CORNERS}
+    BASIC = { 'heuristicType': Heuristics.SCORE | Heuristics.ALL_CORNERS }
 
 def showResults(results, options, player1Args, player2Args):
     for key, value in results.items():
@@ -30,10 +30,9 @@ def showResults(results, options, player1Args, player2Args):
                                     value[0])
 
 def csvResults(filename, results, names, depths, args1, args2=[]):
-    backup = sys.stdout
+    backup = sys.stdout # save original stdout
 
-    # ####
-    sys.stdout = StringIO()     # capture output
+    sys.stdout = StringIO() # capture output
     if len(args2) == 0:
         args2 = args1
 
@@ -44,11 +43,11 @@ def csvResults(filename, results, names, depths, args1, args2=[]):
                 + ('\t,%s%s - Losses' % (name, depth)))
 
 
-    for i, args1 in enumerate(args1):
+    for i, _1 in enumerate(args1):
         for depth1 in depths:
             print ''
-            sys.stdout.write('%s%s' % (names[i], depth))
-            for j, args2 in enumerate(args2):
+            sys.stdout.write('%s%s' % (names[i], depth1))
+            for j, _2 in enumerate(args2):
                 for depth2 in depths:
                     sys.stdout.write('\t,%s,\t\t%s,\t\t%s\t' % ( results[(0, i, j, depth1, depth2)][-1], \
                                                 results[(0, i, j, depth1, depth2)][0], \
@@ -60,7 +59,7 @@ def csvResults(filename, results, names, depths, args1, args2=[]):
     f.write(out)
     f.close()
 
-    sys.stdout.close()  # close the stream 
+    sys.stdout.close() # close the stream 
     sys.stdout = backup # restore original stdout
     return out
 
@@ -124,7 +123,7 @@ def singleGame(gameOptions, player1Args, player2Args):
         state = BlokusGameState().setup(boardSize, 'shapes.txt',\
                 orderedShapesMode)
 
-    except IllegalShapesFileFormatException:
+    except IllegalShapeFileFormatException:
         print '\nIllegal shape file format'
         return
 

@@ -71,7 +71,8 @@ def makeShapes(shapesFilePath, boardSizeWithBorder):
         isShapesValid = False
     
     if not isShapesValid:
-        raise IllegalShapeFileFormatException()
+        pass
+        #raise IllegalShapeFileFormatException()
     
     shuffle(shapes)
     

@@ -1,6 +1,10 @@
 from BlokusGameAgentExample import BlokusGameAgentExample
 from BlokusAgentSimple import BlokusAgentSimple
-from BlokusGameUtils import getIndexesOfTurnedOnBits, getBinaryShapeCorners
+from BlokusGameUtils import getIndexesOfTurnedOnBits, \
+                            getBinaryShapeCorners, \
+                            getBoardCorners, \
+                            binaryBoardToArray
+
 from AlphaBeta import AlphaBetaSearch
 
 class TimeManagement:
@@ -23,6 +27,7 @@ class Heuristics:
     CORNERS = 2
     CORNERS_TIMES_SQUARES = 4
     ALL_CORNERS = 8
+    OPPOSING_CORNERS = 16
 
 
 class BlokusAgentMcBoogerballs(BlokusAgentSimple):
@@ -45,17 +50,12 @@ class BlokusAgentMcBoogerballs(BlokusAgentSimple):
                                          lambda state, d, o: self.select(state, d, o))
 
     def select(self, state, depth, overdepth):
-        if depth < 5:
-            return None
-
         if overdepth > 4:
             return False
 
         if self.selectiveDeepening & SelectiveDeepening.HIGH_HEURISTICS:
             if corners(self.player, state) > 5:
                 return True
-            if corners(self.player, state) < 3:
-                return False
 
         return None
 
@@ -74,13 +74,9 @@ class BlokusAgentMcBoogerballs(BlokusAgentSimple):
             score += 1 * BlokusGameAgentExample.heuristic(self, state)
         if self.heuristicType & Heuristics.ALL_CORNERS:
             score += 1 * corners(self.player, state)
+        if self.heuristicType & Heuristics.OPPOSING_CORNERS:
+            score += 1 * opposingCorners(self.player, state)
 
-        if False:
-            print '===Heuristics==='
-            print BlokusGameAgentExample.heuristic(self, state)
-            print availableCorners(state, state.currentPlayer.getCurrentColor())
-            print corners(self.player, state)
-            print '===End Heuristics==='
         return score
 
     @property
@@ -98,6 +94,43 @@ class BlokusAgentMcBoogerballs(BlokusAgentSimple):
                 return self._turnTimeLimit
 
         return self._turnTimeLimit
+
+def opposingCorners(player, state):
+    slimSize = state.boardSize
+    size = state.boardSizeWithBorder
+    boardCorners = getBoardCorners(size)
+    color1 = state.currentPlayer.colors[0].boardBinary
+    color2 = state.currentPlayer.colors[1].boardBinary
+
+    
+    print binaryBoardToArray(boardCorners, slimSize, size)
+    print binaryBoardToArray(color1, slimSize, size)
+    print binaryBoardToArray(color2, slimSize, size)
+
+    corner1 = color1 & boardCorners
+    corner2 = color2 & boardCorners
+
+    corner1, corner2 = min(corner1, corner2), max(corner1, corner2)
+
+    retval = 0
+    if corner1 & topLeftCorner(size) and corner2 & bottomRightCorner(size) \
+            or \
+        corner1 & topRightCorner(size) and corner2 & bottomLeftCorner(size):
+        retval = 1000
+
+    return retval if player == state.getCurrentPlayer() else -1 * retval
+
+def topLeftCorner(boardSizeWithBorder):
+    return 2**(boardSizeWithBorder + 1) 
+
+def topRightCorner(boardSizeWithBorder):
+    return 2**(2 * boardSizeWithBorder - 2) 
+
+def bottomLeftCorner(boardSizeWithBorder):
+    return 2**(boardSizeWithBorder * (boardSizeWithBorder - 2) + 1) 
+
+def bottomRightCorner(boardSizeWithBorder):
+    return 2**(boardSizeWithBorder * (boardSizeWithBorder - 1) - 2)
 
 def corners(player, state):
     corners = 0

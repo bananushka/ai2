@@ -29,8 +29,8 @@ if __name__ == '__main__':
     args = [ Args.BASIC, addFeature(Args.BASIC, \
             selectiveDeepening=SelectiveDeepening.HIGH_HEURISTICS) ]
     playerArgs = args
-    options = [ { 'timeLimit': 30 } ]
-    results = experiment(options, depths, playerArgs, runs=4)
+    options = [ { 'timeLimit': NO_LIMIT } ]
+    results = experiment(options, depths, playerArgs, runs=1)
     print csvResults(out, results, names, depths, playerArgs)
 
 	

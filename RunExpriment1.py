@@ -20,13 +20,11 @@ out = 'output1.txt' # (or csv)
 
 table = {}
 if __name__ == '__main__':
-    depths = [2, 4]
+    depths = [ 2 ]
     names = [ 'S', 'Y' ]
-    args = [Args.SIMPLE, {
-                    'heuristicType': Heuristics.SCORE | Heuristics.ALL_CORNERS
-                }]
+    args = [ Args.SIMPLE, Args.BASIC ]
     playerArgs = addDepth(depths=depths, player1Args=args)
-    options = [ { 'timeLimit': NO_LIMIT } ]
+    options = [ { 'boardSize': 5, 'timeLimit': NO_LIMIT } ]
     results = experiment(options, depths, playerArgs)
     print csvResults(out, results, names, depths, playerArgs)
 

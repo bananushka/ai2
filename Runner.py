@@ -13,12 +13,12 @@ from cStringIO import StringIO
 
 
 GAME_DEFAULTS = GameOption[2]
-DEFAULT_RUNS = 20
+DEFAULT_RUNS = 1
 DEFAULT_DEPTH = 2
 
 class Args:
     SIMPLE = { 'heuristicType': Heuristics.SCORE }
-    BASIC = { 'heuristicType': Heuristics.SCORE | Heuristics.ALL_CORNERS }
+    BASIC = { 'heuristicType': Heuristics.SCORE | Heuristics.ALL_CORNERS | Heuristics.OPPOSING_CORNERS}
 
 def showResults(results, options, player1Args, player2Args):
     for key, value in results.items():

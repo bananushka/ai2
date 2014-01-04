@@ -32,6 +32,17 @@ out = 'output2.csv' # (or csv)
 if __name__ == '__main__':
     depths = [2]
     names = [ 'S', 'Y' ]
+
+    args = [ Args.SIMPLE, addFeature(Args.SIMPLE, \
+                timeManagement=TimeManagement.MORE_TIME_AT_THE_END) ]
+    times = [ 20, 40, 60, 80, 100, 140, 180, 220, 260, 300 ]
+    for time in times:
+        options = [ { 'timeLimit': time } ]
+        results = experiment(options, depths, args, runs=10)
+        print csvResults(('output2-time-%s.csv' % time), results, names, depths, args)
+
+
+
     params = [ \
             addFeature(Args.SIMPLE, \
                 selectiveDeepening=SelectiveDeepening.HIGH_HEURISTICS), \
@@ -46,9 +57,9 @@ if __name__ == '__main__':
 
     for i, param in enumerate(params):
         args = [ Args.SIMPLE, param ]
-        options = [ { 'timeLimit': 60 } ]
+        options = [ { 'timeLimit': 80 } ]
         results = experiment(options, depths, args, runs=10)
-        print csvResults(('output2-%s.csv' % i), results, names, depths, args)
+        print csvResults(('output2-param-%s.csv' % i), results, names, depths, args)
 
     '''
     args = [ Args.SIMPLE, Args.BASIC ]

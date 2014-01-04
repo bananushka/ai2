@@ -34,37 +34,12 @@ if __name__ == '__main__':
     names = [ 'S', 'Y' ]
 
     args = [ Args.SIMPLE, addFeature(Args.SIMPLE, \
-                timeManagement=TimeManagement.MORE_TIME_AT_THE_END) ]
-    times = [ 20, 40, 60, 80, 100, 140, 180, 220, 260, 300 ]
+                childrenOrdering=ChildrenOrdering.HEURISTIC) ]
+    times = [ 30, 40, 50, 60, 70 ]
     for time in times:
-        options = [ { 'timeLimit': time } ]
+        options = [ { 'boardSize': BoardSize.FOURTEEN, \
+                'timeLimit': time, \
+                'orderedShapesMode': NOT_ORDERED_SHAPES_MODE } ]
         results = experiment(options, depths, args, runs=10)
         print csvResults(('output2-time-%s.csv' % time), results, names, depths, args)
 
-
-
-    params = [ \
-            addFeature(Args.SIMPLE, \
-                selectiveDeepening=SelectiveDeepening.HIGH_HEURISTICS), \
-            addFeature(Args.SIMPLE, \
-                childrenOrdering=ChildrenOrdering.HEURISTIC), \
-            addFeature(Args.SIMPLE, \
-                timeManagement=TimeManagement.MORE_TIME_AT_THE_BEGINNING), \
-            addFeature(Args.SIMPLE, \
-                timeManagement=TimeManagement.MORE_TIME_AT_THE_END) \
-            ]
-
-
-    for i, param in enumerate(params):
-        args = [ Args.SIMPLE, param ]
-        options = [ { 'timeLimit': 80 } ]
-        results = experiment(options, depths, args, runs=10)
-        print csvResults(('output2-param-%s.csv' % i), results, names, depths, args)
-
-    '''
-    args = [ Args.SIMPLE, Args.BASIC ]
-    options = [ { 'timeLimit': 20 } ]
-    #results = experiment(options, depths, args, runs=5)
-    print csvResults(out, results1, names, depths, args)
-    #print csvResults(out, results, names, depths, args)
-    '''

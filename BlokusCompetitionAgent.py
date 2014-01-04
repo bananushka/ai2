@@ -9,7 +9,7 @@
 from GameAgent import GameAgent
 
 class BlokusCompetitionAgent (GameAgent):
-	ids = ('012345678', '876543210') # insert your ID numbers here instead.
+	ids = ('300923000', '305625626') # insert your ID numbers here instead.
 	# ids = '012345678'			 # In case you are a single submitter.
 	
 	agentName = 'AI_' + str(ids[0][-2:]) + '_' + str(ids[1][-2:])
